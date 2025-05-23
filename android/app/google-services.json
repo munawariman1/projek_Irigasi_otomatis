@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "843320739571",
+    "firebase_url": "https://projek-irigasi-skripsi-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "projek-irigasi-skripsi",
+    "storage_bucket": "projek-irigasi-skripsi.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:843320739571:android:998c6f54d4dff28f3e5986",
+        "android_client_info": {
+          "package_name": "com.example.projek_irigasi_otomatis"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDY24i_PimPnhXeIelWuYpn5keGhqwWj_E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
