@@ -4,6 +4,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'screens/splash_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/detail_screen.dart';
+import 'screens/history_sensor_screen.dart';
+import 'screens/history_prediksi_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,7 +36,11 @@ class MyApp extends StatelessWidget {
         '/': (context) => const SplashScreen(),
         '/home': (context) => const HomeScreen(),
         '/Detail': (context) => const DetailScreen(),
+        '/history_sensor': (context) => const HistorySensorScreen(),
+        '/history_prediksi': (context) => const HistoryPrediksiScreen(),
       },
     );
   }
+ 
+  
 }

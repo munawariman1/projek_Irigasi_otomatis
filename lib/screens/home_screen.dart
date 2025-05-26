@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../models/sensor_data.dart';
 import '../services/firebase_service.dart';
+import '../services/flask_service.dart';
+import '../models/sensor_data.dart';
 import '../widgets/status_card.dart';
-import '../widgets/sensor_chart.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -10,13 +10,10 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final firebaseService = FirebaseService();
-    
+    final flaskService = FlaskService();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Monitoring Irigasi Otomatis'),
-        backgroundColor: Colors.green.shade700,
-      ),
+      appBar: AppBar(title: const Text("Monitoring & Prediksi Irigasi")),
       body: StreamBuilder<SensorData?>(
         stream: firebaseService.getSensorDataStream(),
         builder: (context, snapshot) {
@@ -37,78 +34,94 @@ class HomeScreen extends StatelessWidget {
           }
 
           final data = snapshot.data!;
-          // lanjut tampilkan StatusCard dan SensorChart seperti sebelumnya
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Wrap(
-                  spacing: 16,
-                  runSpacing: 16,
-                  children: [
-                    StatusCard(
-                      title: "pH Tanah",
-                      value: data.ph.toStringAsFixed(1),
-                      unit: "",
-                      isWarning: data.ph < 5.5 || data.ph > 7.5,
-                    ),
+          return Column(
+            children: [
+              Wrap(
+                spacing: 16,
+                runSpacing: 16,
+                children: [
+                  StatusCard(
+                    title: "pH Tanah",
+                    value: data.ph.toStringAsFixed(1),
+                    unit: "",
+                    isWarning: data.ph < 5.5 || data.ph > 7.5,
+                  ),
+                  StatusCard(
+                    title: "Kelembapan",
+                    value: data.kelembapan.toStringAsFixed(1),
+                    unit: "%",
+                    isWarning: data.kelembapan < 30,
+                  ),
+                  StatusCard(
+                    title: "Curah Hujan",
+                    value: data.curahHujan.toStringAsFixed(1),
+                    unit: "mm",
+                  ),
+                  StatusCard(
+                    title: "Suhu Tanah",
+                    value: data.suhu.toStringAsFixed(1),
+                    unit: "°C",
+                  ),
+                  StatusCard(
+                    title: "Level Air",
+                    value: "${data.levelAir.toStringAsFixed(1)}%",
+                    unit: "",
+                    isWarning: data.levelAir < 20,
+                  ),
+                  StatusCard(
+                    title: "Kecepatan Angin",
+                    value: data.angin.toStringAsFixed(1),
+                    unit: "m/s",
+                  ),
+                ],
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  try {
+                    final result = await flaskService.predictEfisiensi(data);
+                    showDialog(
+                      context: context,
+                      builder:
+                          (_) => AlertDialog(
+                            title: const Text("Hasil Prediksi"),
+                            content: Text(
+                              "Efisiensi: ${result['efisiensiAir']}\n"
+                              "Waktu Penyiraman: ${result['irigasiWaktu']} detik",
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text("OK"),
+                              ),
+                            ],
+                          ),
+                    );
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("❌ Gagal prediksi: $e")),
+                    );
+                  }
+                },
+                child: const Text("🔍 Prediksi Efisiensi Air"),
+              ),
 
-                    StatusCard(
-                      title: "Kelembapan",
-                      value: data.moisture.toStringAsFixed(1),
-                      unit: "%",
-                      isWarning: data.moisture < 30,
-                    ),
-
-                    StatusCard(
-                      title: "Curah Hujan",
-                      value: data.rainfall.toStringAsFixed(1),
-                      unit: "mm",
-                    ),
-                    StatusCard(
-                      title: "Suhu Tanah",
-                      value: data.temperature.toStringAsFixed(1),
-                      unit: "°C",
-                    ),
-                    StatusCard(
-                      title: "Level Air",
-                      value: "${data.waterLevel.toStringAsFixed(1)}%",
-                      unit: "",
-                      isWarning: data.waterLevel < 20,
-                    ),
-                    StatusCard(
-                      title: "Kecepatan Angin",
-                      value: data.windSpeed.toStringAsFixed(1),
-                      unit: "m/s",
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                SensorChart(sensorName: "pH Tanah", values: data.phHistory),
-                SensorChart(
-                  sensorName: "Kelembapan",
-                  values: data.moistureHistory,
-                ),
-                SensorChart(
-                  sensorName: "Curah Hujan",
-                  values: data.rainfallHistory,
-                ),
-                SensorChart(
-                  sensorName: "Suhu Tanah",
-                  values: data.temperatureHistory,
-                ),
-                SensorChart(
-                  sensorName: "Level Air",
-                  values: data.waterLevelHistory,
-                ),
-                SensorChart(
-                  sensorName: "Kecepatan Angin",
-                  values: data.windSpeedHistory,
-                ),
-              ],
-            ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed:
+                        () => Navigator.pushNamed(context, '/history_sensor'),
+                    child: const Text("📜 History Sensor"),
+                  ),
+                  ElevatedButton(
+                    onPressed:
+                        () => Navigator.pushNamed(context, '/history_prediksi'),
+                    child: const Text("📊 History Prediksi"),
+                  ),
+                ],
+              ),
+            ],
           );
         },
       ),

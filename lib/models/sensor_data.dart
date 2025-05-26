@@ -1,75 +1,72 @@
 class SensorData {
+  final double kelembapan;
+  final double suhu;
   final double ph;
-  final double moisture;
-  final double temperature;
-  final double rainfall;
-  final double waterLevel;
-  final double windSpeed;
+  final double curahHujan;
+  final double angin;
+  final double levelAir;
 
   final List<double> phHistory;
-  final List<double> moistureHistory;
-  final List<double> temperatureHistory;
-  final List<double> rainfallHistory;
-  final List<double> waterLevelHistory;
-  final List<double> windSpeedHistory;
+  final List<double> kelembapanHistory;
+  final List<double> suhuHistory;
+  final List<double> curahHujanHistory;
+  final List<double> levelAirHistory;
+  final List<double> anginHistory;
 
   SensorData({
     required this.ph,
-    required this.moisture,
-    required this.temperature,
-    required this.rainfall,
-    required this.waterLevel,
-    required this.windSpeed,
+    required this.kelembapan,
+    required this.suhu,
+    required this.curahHujan,
+    required this.levelAir,
+    required this.angin,
     required this.phHistory,
-    required this.moistureHistory,
-    required this.temperatureHistory,
-    required this.rainfallHistory,
-    required this.waterLevelHistory,
-    required this.windSpeedHistory,
+    required this.kelembapanHistory,
+    required this.suhuHistory,
+    required this.curahHujanHistory,
+    required this.levelAirHistory,
+    required this.anginHistory,
   });
 
-  // factory SensorData.fromJson(Map<String, dynamic> json) {
-  //   return SensorData(
-  //     ph: (json['ph'] ?? 0).toDouble(),
-  //     moisture: (json['moisture'] ?? 0).toDouble(),
-  //     temperature: (json['temperature'] ?? 0).toDouble(),
-  //     rainfall: (json['rainfall'] ?? 0).toDouble(),
-  //     waterLevel: (json['waterLevel'] ?? 0).toDouble(),
-  //     windSpeed: (json['windSpeed'] ?? 0).toDouble(),
-  //     phHistory: List<double>.from((json['phHistory'] ?? []).map((e) => (e as num).toDouble())),
-  //     moistureHistory: List<double>.from((json['moistureHistory'] ?? []).map((e) => (e as num).toDouble())),
-  //     temperatureHistory: List<double>.from((json['temperatureHistory'] ?? []).map((e) => (e as num).toDouble())),
-  //     rainfallHistory: List<double>.from((json['rainfallHistory'] ?? []).map((e) => (e as num).toDouble())),
-  //     waterLevelHistory: List<double>.from((json['waterLevelHistory'] ?? []).map((e) => (e as num).toDouble())),
-  //     windSpeedHistory: List<double>.from((json['windSpeedHistory'] ?? []).map((e) => (e as num).toDouble())),
-  //   );
-  // }
   factory SensorData.fromJson(Map<String, dynamic> json) {
+    List<double> safeList(dynamic rawList) {
+      if (rawList is List) {
+        return rawList.map((e) => (e as num).toDouble()).toList();
+      }
+      return [];
+    }
+
     return SensorData(
-      ph: (json['ph'] ?? 0).toDouble(),
-      moisture: (json['moisture'] ?? 0).toDouble(),
-      temperature: (json['temperature'] ?? 0).toDouble(),
-      rainfall: (json['rainfall'] ?? 0).toDouble(),
-      waterLevel: (json['waterLevel'] ?? 0).toDouble(),
-      windSpeed: (json['windSpeed'] ?? 0).toDouble(),
-      phHistory: List<double>.from(
-        (json['phHistory'] ?? []).map((e) => e.toDouble()),
-      ),
-      moistureHistory: List<double>.from(
-        (json['moistureHistory'] ?? []).map((e) => e.toDouble()),
-      ),
-      temperatureHistory: List<double>.from(
-        (json['temperatureHistory'] ?? []).map((e) => e.toDouble()),
-      ),
-      rainfallHistory: List<double>.from(
-        (json['rainfallHistory'] ?? []).map((e) => e.toDouble()),
-      ),
-      waterLevelHistory: List<double>.from(
-        (json['waterLevelHistory'] ?? []).map((e) => e.toDouble()),
-      ),
-      windSpeedHistory: List<double>.from(
-        (json['windSpeedHistory'] ?? []).map((e) => e.toDouble()),
-      ),
+      ph: (json['phTanah'] ?? 0).toDouble(),
+      kelembapan: (json['kelembapanTanah'] ?? 0).toDouble(),
+      suhu: (json['suhuTanah'] ?? 0).toDouble(),
+      curahHujan: (json['curahHujan'] ?? 0).toDouble(),
+      levelAir: (json['levelAir'] ?? 0).toDouble(),
+      angin: (json['kecepatanAngin'] ?? json['KecepatanAngin'] ?? 0).toDouble(),
+
+      phHistory: safeList(json['phTanahHistory']),
+      kelembapanHistory: safeList(json['kelembapanTanahHistory']),
+      suhuHistory: safeList(json['suhuTanahHistory']),
+      curahHujanHistory: safeList(json['curahHujanHistory']),
+      levelAirHistory: safeList(json['levelAirHistory']),
+      anginHistory: safeList(json['kecepatanAnginHistory']),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "phTanah": ph,
+      "kelembapanTanah": kelembapan,
+      "suhuTanah": suhu,
+      "curahHujan": curahHujan,
+      "levelAir": levelAir,
+      "kecepatanAngin": angin,
+      "phTanahHistory": phHistory,
+      "kelembapanTanahHistory": kelembapanHistory,
+      "suhuTanahHistory": suhuHistory,
+      "curahHujanHistory": curahHujanHistory,
+      "levelAirHistory": levelAirHistory,
+      "kecepatanAnginHistory": anginHistory,
+    };
   }
 }
