@@ -10,32 +10,94 @@ class StatusCard extends StatelessWidget {
     super.key,
     required this.title,
     required this.value,
-    required this.unit,
+    this.unit = "",
     this.isWarning = false,
   });
 
+  Color _getStatusColor(BuildContext context) {
+    if (isWarning) {
+      return Theme.of(context).colorScheme.error;
+    }
+    return Theme.of(context).colorScheme.primary;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: isWarning ? Colors.red.shade100 : Colors.white,
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            Text(
-              '$value $unit',
-              style: TextStyle(
-                fontSize: 20,
-                color: isWarning ? Colors.red : Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
+    final statusColor = _getStatusColor(context);
+
+    return Container(
+      width: MediaQuery.of(context).size.width > 600 ? 280 : 160,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: statusColor.withOpacity(0.1),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: Border.all(
+          color: statusColor.withOpacity(0.1),
+          width: 1,
         ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              if (isWarning)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.error.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.warning_rounded,
+                    color: Theme.of(context).colorScheme.error,
+                    size: 16,
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: statusColor,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                unit,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: statusColor.withOpacity(0.8),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

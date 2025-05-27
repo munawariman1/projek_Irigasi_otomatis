@@ -6,7 +6,7 @@ class HistorySensorScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final historyRef = FirebaseDatabase.instance.ref().child('history_sensor');
+    final historyRef = FirebaseDatabase.instance.ref('history_sensor');
 
     return Scaffold(
       appBar: AppBar(title: const Text('Riwayat Data Sensor')),

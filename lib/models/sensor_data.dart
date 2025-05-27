@@ -31,25 +31,53 @@ class SensorData {
   factory SensorData.fromJson(Map<String, dynamic> json) {
     List<double> safeList(dynamic rawList) {
       if (rawList is List) {
-        return rawList.map((e) => (e as num).toDouble()).toList();
+        try {
+          return rawList
+              .map((e) => (e == null) ? 0.0 : (e as num).toDouble())
+              .toList();
+        } catch (e) {
+          print('Warning: Error converting list: $e');
+          return [];
+        }
       }
       return [];
     }
 
-    return SensorData(
-      ph: (json['phTanah'] ?? 0).toDouble(),
-      kelembapan: (json['kelembapanTanah'] ?? 0).toDouble(),
-      suhu: (json['suhuTanah'] ?? 0).toDouble(),
-      curahHujan: (json['curahHujan'] ?? 0).toDouble(),
-      levelAir: (json['levelAir'] ?? 0).toDouble(),
-      angin: (json['kecepatanAngin'] ?? json['KecepatanAngin'] ?? 0).toDouble(),
+    double safeDouble(dynamic value) {
+      if (value == null) return 0.0;
+      if (value is num) return value.toDouble();
+      if (value is String) {
+        try {
+          return double.parse(value);
+        } catch (e) {
+          print('Warning: Error converting string to double: $e');
+          return 0.0;
+        }
+      }
+      return 0.0;
+    }
 
-      phHistory: safeList(json['phTanahHistory']),
-      kelembapanHistory: safeList(json['kelembapanTanahHistory']),
-      suhuHistory: safeList(json['suhuTanahHistory']),
-      curahHujanHistory: safeList(json['curahHujanHistory']),
-      levelAirHistory: safeList(json['levelAirHistory']),
-      anginHistory: safeList(json['kecepatanAnginHistory']),
+    return SensorData(
+      ph: safeDouble(json['ph'] ?? json['phTanah'] ?? 0),
+      kelembapan: safeDouble(
+        json['kelembapan'] ?? json['kelembapanTanah'] ?? 0,
+      ),
+      suhu: safeDouble(json['suhu'] ?? json['suhuTanah'] ?? 0),
+      curahHujan: safeDouble(json['curahHujan'] ?? 0),
+      levelAir: safeDouble(json['levelAir'] ?? 0),
+      angin: safeDouble(json['angin'] ?? json['kecepatanAngin'] ?? 0),
+      phHistory: safeList(json['phHistory'] ?? json['phTanahHistory'] ?? []),
+      kelembapanHistory: safeList(
+        json['kelembapanHistory'] ?? json['kelembapanTanahHistory'] ?? [],
+      ),
+      suhuHistory: safeList(
+        json['suhuHistory'] ?? json['suhuTanahHistory'] ?? [],
+      ),
+      curahHujanHistory: safeList(json['curahHujanHistory'] ?? []),
+      levelAirHistory: safeList(json['levelAirHistory'] ?? []),
+      anginHistory: safeList(
+        json['anginHistory'] ?? json['kecepatanAnginHistory'] ?? [],
+      ),
     );
   }
 

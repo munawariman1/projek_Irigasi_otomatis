@@ -3,114 +3,71 @@ import '../models/sensor_data.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 class FirebaseService {
-  final DatabaseReference _sensorRef =
-      FirebaseDatabase.instanceFor(
-        app: Firebase.app(),
-        databaseURL:
-            'https://projek-irigasi-skripsi-default-rtdb.asia-southeast1.firebasedatabase.app',
-      ).ref();
+  final DatabaseReference _rootRef = FirebaseDatabase.instanceFor(
+    app: Firebase.app(),
+    databaseURL:
+        'https://projek-irigasi-skripsi-default-rtdb.asia-southeast1.firebasedatabase.app',
+  ).ref();
 
+  /// ✅ Ambil data dari /sensors
   Stream<SensorData?> getSensorDataStream() {
     print('🔎 Listening to path: /sensors');
-    return _sensorRef.child('sensors').onValue.map((event) {
-      print('📦 Raw Firebase data: ${event.snapshot.value}');
+    return _rootRef.child('sensors').onValue.map((event) {
+      final raw = event.snapshot.value;
 
-      if (event.snapshot.value is! Map) {
-        print(
-          '⚠️ Data format bukan Map, tapi ${event.snapshot.value.runtimeType}',
-        );
+      print('📦 Raw Firebase data: $raw');
+
+      if (raw == null) {
+        print('⚠️ Data NULL');
+        return null;
+      }
+
+      if (raw is! Map) {
+        print('❌ Format data bukan Map: ${raw.runtimeType}');
         return null;
       }
 
       try {
-        final data = Map<String, dynamic>.from(event.snapshot.value as Map);
+        final data = Map<String, dynamic>.from(raw as Map);
         print('✅ Data parsed successfully');
         return SensorData.fromJson(data);
       } catch (e) {
         print('❌ Error parsing data: $e');
         return null;
       }
+    }).handleError((error) {
+      print('‼️ Stream ERROR: $error');
+      return null;
     });
   }
 
+  /// 💾 Simpan data ke /history_sensor dengan timestamp
   Future<void> simpanHistorySensor(SensorData data) async {
-    await FirebaseDatabase.instance
-        .ref('history_sensor')
-        .push()
-        .set(data.toJson());
+    final now = DateTime.now().toIso8601String();
+    final historyData = {
+      ...data.toJson(),
+      "timestamp": now,
+    };
+
+    await _rootRef.child('history_sensor').push().set(historyData);
+    print("✅ History sensor disimpan");
   }
 
+  /// 💾 Simpan hasil prediksi ke /history_prediksi
   Future<void> simpanHistoryPrediksi(
     SensorData data,
     String efisiensi,
     int durasi,
   ) async {
     final now = DateTime.now().toIso8601String();
-    await FirebaseDatabase.instance.ref('history_prediksi').push().set({
+    final prediksiData = {
       ...data.toJson(),
       "efisiensi": efisiensi,
       "irigasiWaktu": durasi,
       "waktu": now,
-    });
+    };
+
+    await _rootRef.child('history_prediksi').push().set(prediksiData);
+    print("✅ History prediksi disimpan");
   }
 }
-// class FirebaseService {
-//   // final DatabaseReference _sensorRef = FirebaseDatabase.instance.ref().child(
-//   //   'sensors',
-//   // );
-//   final DatabaseReference _sensorRef = FirebaseDatabase.instanceFor(
-//     app: Firebase.app(),
-//     databaseURL:
-//         'https://projek-irigasi-skripsi-default-rtdb.asia-southeast1.firebasedatabase.app',
-//   ).ref('sensors');
-
-//   // Stream<SensorData?> getSensorStream() {
-//   //   return _sensorRef.child('sensors').onValue.map((event) {
-//   //     final data = event.snapshot.value;
-//   //     if (data != null && data is Map) {
-//   //       return SensorData.fromJson(Map<String, dynamic>.from(data));
-//   //     }
-//   //     return null;
-//   //   });
-//   // }
-
-
-//   Stream<SensorData?> getSensorDataStream() {
-//     print('🔎 Listening to path: /sensors');
-//   return _sensorRef.onValue.map((event) {
-//     print('📦 Raw Firebase data: ${event.snapshot.value}');
-
-//     if (event.snapshot.value == null) {
-//       print('⚠️ Data is NULL at path: /sensors');
-//       return null;
-//     }
-
-//     try {
-//       final data = Map<String, dynamic>.from(event.snapshot.value as Map);
-//       print('✅ Data parsed successfully');
-//       return SensorData.fromJson(data);
-//     } catch (e) {
-//       print('❌ Error parsing data: $e');
-//       return null;
-//     }
-//   }).handleError((error) {
-//     print('‼️ Stream ERROR: $error');
-//     return null;
-//   });
-// }
-  
-//  Future<void> simpanHistorySensor(SensorData data) async {
-//     await _sensorRef.child('history_sensor').push().set(data.toJson());
-//   }
-
-//   Future<void> simpanHistoryPrediksi(SensorData data, String efisiensi, int durasi) async {
-//     final now = DateTime.now().toIso8601String();
-//     await _sensorRef.child('history_prediksi').push().set({
-//       ...data.toJson(),
-//       "efisiensi": efisiensi,
-//       "irigasiWaktu": durasi,
-//       "waktu": now,
-//     });
-//   }
-// }
-
