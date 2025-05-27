@@ -5,6 +5,7 @@ import 'screens/home_screen.dart';
 import 'screens/detail_screen.dart';
 import 'screens/history_sensor_screen.dart';
 import 'screens/history_prediksi_screen.dart';
+import 'screens/notification_screen.dart';
 import 'utils/theme.dart';
 
 void main() async {
@@ -35,6 +36,7 @@ class MyApp extends StatelessWidget {
         '/detail': (context) => const DetailScreen(),
         '/history_sensor': (context) => const HistorySensorScreen(),
         '/history_prediksi': (context) => const HistoryPrediksiScreen(),
+        '/notifications': (context) => const NotificationScreen(),
       },
     );
   }

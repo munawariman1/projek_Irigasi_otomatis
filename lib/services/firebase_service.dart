@@ -28,7 +28,7 @@ class FirebaseService {
       }
 
       try {
-        final data = Map<String, dynamic>.from(raw as Map);
+        final data = Map<String, dynamic>.from(raw);
         print('✅ Data parsed successfully');
         return SensorData.fromJson(data);
       } catch (e) {
