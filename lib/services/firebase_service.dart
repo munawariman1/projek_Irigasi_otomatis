@@ -1,73 +1,88 @@
 import 'package:firebase_database/firebase_database.dart';
 import '../models/sensor_data.dart';
-import 'package:firebase_core/firebase_core.dart';
+import '../models/prediction_result.dart';
 
 class FirebaseService {
-  final DatabaseReference _rootRef = FirebaseDatabase.instanceFor(
-    app: Firebase.app(),
-    databaseURL:
-        'https://projek-irigasi-skripsi-default-rtdb.asia-southeast1.firebasedatabase.app',
-  ).ref();
+  static final FirebaseService _instance = FirebaseService._internal();
+  factory FirebaseService() => _instance;
+  FirebaseService._internal();
 
-  /// ✅ Ambil data dari /sensors
+  final DatabaseReference _rootRef = FirebaseDatabase.instance.ref();
+
+  // Stream untuk data sensor realtime
   Stream<SensorData?> getSensorDataStream() {
-    print('🔎 Listening to path: /sensors');
-    return _rootRef.child('sensors').onValue.map((event) {
-      final raw = event.snapshot.value;
-
-      print('📦 Raw Firebase data: $raw');
-
-      if (raw == null) {
-        print('⚠️ Data NULL');
-        return null;
-      }
-
-      if (raw is! Map) {
-        print('❌ Format data bukan Map: ${raw.runtimeType}');
-        return null;
-      }
-
+    return _rootRef.child('sensor').onValue.map((event) {
+      if (event.snapshot.value == null) return null;
       try {
-        final data = Map<String, dynamic>.from(raw as Map);
-        print('✅ Data parsed successfully');
+        final data = Map<String, dynamic>.from(event.snapshot.value as Map);
         return SensorData.fromJson(data);
       } catch (e) {
-        print('❌ Error parsing data: $e');
+        print('Error parsing sensor data: $e');
         return null;
       }
-    }).handleError((error) {
-      print('‼️ Stream ERROR: $error');
-      return null;
     });
   }
 
-  /// 💾 Simpan data ke /history_sensor dengan timestamp
-  Future<void> simpanHistorySensor(SensorData data) async {
-    final now = DateTime.now().toIso8601String();
+  // Menyimpan data sensor ke history
+  Future<void> saveHistorySensor(SensorData data) async {
     final historyData = {
-      ...data.toJson(),
-      "timestamp": now,
+      'ph': data.ph,
+      'kelembapan': data.kelembapan,
+      'suhu': data.suhu,
+      'curahHujan': data.curahHujan,
+      'levelAir': data.levelAir,
+      'angin': data.angin,
+      'timestamp': DateTime.now().toIso8601String(),
     };
-
     await _rootRef.child('history_sensor').push().set(historyData);
-    print("✅ History sensor disimpan");
   }
 
-  /// 💾 Simpan hasil prediksi ke /history_prediksi
-  Future<void> simpanHistoryPrediksi(
+  // Menyimpan hasil prediksi
+  Future<void> saveHistoryPrediction(
     SensorData data,
-    String efisiensi,
-    int durasi,
+    PredictionResult prediction,
   ) async {
-    final now = DateTime.now().toIso8601String();
     final prediksiData = {
-      ...data.toJson(),
-      "efisiensi": efisiensi,
-      "irigasiWaktu": durasi,
-      "waktu": now,
+      'sensor': data.toJson(),
+      'hasil': prediction.toJson(),
+      'timestamp': DateTime.now().toIso8601String(),
     };
-
     await _rootRef.child('history_prediksi').push().set(prediksiData);
-    print("✅ History prediksi disimpan");
+  }
+
+  // Stream untuk history sensor
+  Stream<List<SensorData>> getHistorySensorStream() {
+    return _rootRef.child('history_sensor').limitToLast(100).onValue.map((
+      event,
+    ) {
+      if (event.snapshot.value == null) return [];
+      try {
+        final data = Map<String, dynamic>.from(event.snapshot.value as Map);
+        return data.values
+            .map((e) => SensorData.fromJson(Map<String, dynamic>.from(e)))
+            .toList();
+      } catch (e) {
+        print('Error parsing history sensor: $e');
+        return [];
+      }
+    });
+  }
+
+  // Stream untuk history prediksi
+  Stream<List<PredictionResult>> getHistoryPredictionStream() {
+    return _rootRef.child('history_prediksi').limitToLast(100).onValue.map((
+      event,
+    ) {
+      if (event.snapshot.value == null) return [];
+      try {
+        final data = Map<String, dynamic>.from(event.snapshot.value as Map);
+        return data.values
+            .map((e) => PredictionResult.fromJson(Map<String, dynamic>.from(e)))
+            .toList();
+      } catch (e) {
+        print('Error parsing history prediction: $e');
+        return [];
+      }
+    });
   }
 }

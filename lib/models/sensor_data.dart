@@ -1,11 +1,11 @@
 class SensorData {
+  final double ph;
   final double kelembapan;
   final double suhu;
-  final double ph;
   final double curahHujan;
-  final double angin;
   final double levelAir;
-
+  final double angin;
+  final DateTime timestamp;
   final List<double> phHistory;
   final List<double> kelembapanHistory;
   final List<double> suhuHistory;
@@ -20,13 +20,38 @@ class SensorData {
     required this.curahHujan,
     required this.levelAir,
     required this.angin,
-    required this.phHistory,
-    required this.kelembapanHistory,
-    required this.suhuHistory,
-    required this.curahHujanHistory,
-    required this.levelAirHistory,
-    required this.anginHistory,
-  });
+    DateTime? timestamp,
+    List<double>? phHistory,
+    List<double>? kelembapanHistory,
+    List<double>? suhuHistory,
+    List<double>? curahHujanHistory,
+    List<double>? levelAirHistory,
+    List<double>? anginHistory,
+  }) : this.timestamp = timestamp ?? DateTime.now(),
+       this.phHistory = phHistory ?? [],
+       this.kelembapanHistory = kelembapanHistory ?? [],
+       this.suhuHistory = suhuHistory ?? [],
+       this.curahHujanHistory = curahHujanHistory ?? [],
+       this.levelAirHistory = levelAirHistory ?? [],
+       this.anginHistory = anginHistory ?? [];
+
+  Map<String, dynamic> toJson() {
+    return {
+      "phTanah": ph,
+      "kelembapanTanah": kelembapan,
+      "suhuTanah": suhu,
+      "curahHujan": curahHujan,
+      "levelAir": levelAir,
+      "kecepatanAngin": angin,
+      "timestamp": timestamp.toIso8601String(),
+      "phTanahHistory": phHistory,
+      "kelembapanTanahHistory": kelembapanHistory,
+      "suhuTanahHistory": suhuHistory,
+      "curahHujanHistory": curahHujanHistory,
+      "levelAirHistory": levelAirHistory,
+      "kecepatanAnginHistory": anginHistory,
+    };
+  }
 
   factory SensorData.fromJson(Map<String, dynamic> json) {
     List<double> safeList(dynamic rawList) {
@@ -58,43 +83,30 @@ class SensorData {
     }
 
     return SensorData(
-      ph: safeDouble(json['ph'] ?? json['phTanah'] ?? 0),
+      ph: safeDouble(json['phTanah'] ?? json['ph'] ?? 0),
       kelembapan: safeDouble(
-        json['kelembapan'] ?? json['kelembapanTanah'] ?? 0,
+        json['kelembapanTanah'] ?? json['kelembapan'] ?? 0,
       ),
-      suhu: safeDouble(json['suhu'] ?? json['suhuTanah'] ?? 0),
+      suhu: safeDouble(json['suhuTanah'] ?? json['suhu'] ?? 0),
       curahHujan: safeDouble(json['curahHujan'] ?? 0),
       levelAir: safeDouble(json['levelAir'] ?? 0),
-      angin: safeDouble(json['angin'] ?? json['kecepatanAngin'] ?? 0),
-      phHistory: safeList(json['phHistory'] ?? json['phTanahHistory'] ?? []),
+      angin: safeDouble(json['kecepatanAngin'] ?? json['angin'] ?? 0),
+      timestamp:
+          json.containsKey('timestamp')
+              ? DateTime.parse(json['timestamp'] as String)
+              : DateTime.now(),
+      phHistory: safeList(json['phTanahHistory'] ?? json['phHistory'] ?? []),
       kelembapanHistory: safeList(
-        json['kelembapanHistory'] ?? json['kelembapanTanahHistory'] ?? [],
+        json['kelembapanTanahHistory'] ?? json['kelembapanHistory'] ?? [],
       ),
       suhuHistory: safeList(
-        json['suhuHistory'] ?? json['suhuTanahHistory'] ?? [],
+        json['suhuTanahHistory'] ?? json['suhuHistory'] ?? [],
       ),
       curahHujanHistory: safeList(json['curahHujanHistory'] ?? []),
       levelAirHistory: safeList(json['levelAirHistory'] ?? []),
       anginHistory: safeList(
-        json['anginHistory'] ?? json['kecepatanAnginHistory'] ?? [],
+        json['kecepatanAnginHistory'] ?? json['anginHistory'] ?? [],
       ),
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      "phTanah": ph,
-      "kelembapanTanah": kelembapan,
-      "suhuTanah": suhu,
-      "curahHujan": curahHujan,
-      "levelAir": levelAir,
-      "kecepatanAngin": angin,
-      "phTanahHistory": phHistory,
-      "kelembapanTanahHistory": kelembapanHistory,
-      "suhuTanahHistory": suhuHistory,
-      "curahHujanHistory": curahHujanHistory,
-      "levelAirHistory": levelAirHistory,
-      "kecepatanAnginHistory": anginHistory,
-    };
   }
 }
