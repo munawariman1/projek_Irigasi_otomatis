@@ -3,6 +3,8 @@ import '../services/firebase_service.dart';
 import '../services/flask_service.dart';
 import '../models/sensor_data.dart';
 import '../widgets/status_card.dart';
+import '../widgets/alert_badge.dart';
+import '../widgets/alert_dialog.dart';
 import 'grafik_screen.dart';
 import 'history_sensor_screen.dart';
 import 'history_prediksi_screen.dart';
@@ -116,6 +118,17 @@ class _HomeScreenState extends State<HomeScreen> {
             title: const Text("Dashboard Monitoring"),
             backgroundColor: const Color.fromARGB(255, 35, 141, 3),
             foregroundColor: Colors.black87,
+            actions: [
+              AlertBadge(
+                data: data,
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => SensorAlertDialog(data: data),
+                  );
+                },
+              ),
+            ],
           ),
           body: RefreshIndicator(
             onRefresh: () async {
@@ -212,7 +225,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: const Color.fromARGB(215, 255, 255, 255),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: const Color.fromARGB(255, 23, 167, 4).withOpacity(0.2),
+                        color: const Color.fromARGB(
+                          255,
+                          23,
+                          167,
+                          4,
+                        ).withOpacity(0.2),
                       ),
                       boxShadow: [
                         BoxShadow(
@@ -265,7 +283,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
 
-                  // Sensor Cards                  
+                  // Sensor Cards
                   GridView.count(
                     crossAxisCount: 2, // 2 kolom
                     shrinkWrap: true,
@@ -308,7 +326,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         title: "Kecepatan Angin",
                         value: data.angin.toStringAsFixed(1),
                         unit: "m/s",
-                        isWarning: data.angin >= 50, // Perbaikan: warning jika >= 5 m/s
+                        isWarning:
+                            data.angin >=
+                            50, // Perbaikan: warning jika >= 5 m/s
                       ),
                     ],
                   ),
