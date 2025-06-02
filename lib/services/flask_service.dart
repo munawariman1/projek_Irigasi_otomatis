@@ -5,7 +5,7 @@ import '../models/prediction_result.dart';
 
 class FlaskService {
   static const String baseUrl =
-      'YOUR_FLASK_SERVER_URL'; // Ganti dengan URL Flask server
+      'https://41ce-180-241-46-158.ngrok-free.app'; // Ganti dengan URL Flask server
 
   Future<PredictionResult> predict(SensorData data) async {
     try {
@@ -13,12 +13,14 @@ class FlaskService {
         Uri.parse('$baseUrl/predict'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
-          'ph': data.ph,
-          'kelembapan': data.kelembapan,
-          'suhu': data.suhu,
-          'curahHujan': data.curahHujan,
-          'levelAir': data.levelAir,
-          'angin': data.angin,
+          'data': [
+            data.kelembapan, // kelembapan_tanah
+            data.suhu, // suhu_tanah
+            data.ph, // ph_tanah
+            data.curahHujan, // curah_hujan
+            data.angin, // kecepatan_angin
+            data.levelAir, // level_air
+          ],
         }),
       );
 
@@ -27,6 +29,7 @@ class FlaskService {
         return PredictionResult(
           efisiensi: result['efisiensi'],
           durasiIrigasi: result['durasi_irigasi'],
+          timestamp: DateTime.parse(result['timestamp'].replaceAll(' ', 'T')),
         );
       } else {
         throw Exception('Gagal mendapatkan prediksi: ${response.statusCode}');

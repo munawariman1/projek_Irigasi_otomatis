@@ -40,8 +40,8 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         elevation: 8,
-        selectedItemColor: Theme.of(context).primaryColor,
-        unselectedItemColor: const Color.fromARGB(173, 184, 248, 165),
+        selectedItemColor: const Color.fromARGB(255, 0, 59, 3),
+        unselectedItemColor: const Color.fromARGB(255, 27, 104, 3),
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         items: const [
@@ -114,7 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
         return Scaffold(
           appBar: AppBar(
             title: const Text("Dashboard Monitoring"),
-            backgroundColor: Colors.white,
+            backgroundColor: const Color.fromARGB(255, 35, 141, 3),
             foregroundColor: Colors.black87,
           ),
           body: RefreshIndicator(
@@ -130,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Status Koneksi Card
                   Container(
                     margin: const EdgeInsets.only(bottom: 16),
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
@@ -206,11 +206,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   // Mode Manual Switch Card
                   Container(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    padding: const EdgeInsets.all(16),
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: const Color.fromARGB(215, 255, 255, 255),
                       borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: const Color.fromARGB(255, 23, 167, 4).withOpacity(0.2),
+                      ),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.05),
@@ -252,7 +255,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Aktifkan mode manual untuk mengontrol irigasi secara manual',
+                          'Aktifkan mode pompa manual',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey[600],
@@ -262,10 +265,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
 
-                  // Sensor Cards
-                  Wrap(
-                    spacing: 16,
-                    runSpacing: 16,
+                  // Sensor Cards                  
+                  GridView.count(
+                    crossAxisCount: 2, // 2 kolom
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                    childAspectRatio: 1.5,
+                    padding: const EdgeInsets.symmetric(vertical: 8),
                     children: [
                       StatusCard(
                         title: "pH Tanah",
@@ -300,6 +308,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         title: "Kecepatan Angin",
                         value: data.angin.toStringAsFixed(1),
                         unit: "m/s",
+                        isWarning: data.angin >= 50, // Perbaikan: warning jika >= 5 m/s
                       ),
                     ],
                   ),

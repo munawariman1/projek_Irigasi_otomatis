@@ -11,7 +11,7 @@ class FirebaseService {
 
   // Stream untuk data sensor realtime
   Stream<SensorData?> getSensorDataStream() {
-    return _rootRef.child('sensor').onValue.map((event) {
+    return _rootRef.child('sensors').onValue.map((event) {
       if (event.snapshot.value == null) return null;
       try {
         final data = Map<String, dynamic>.from(event.snapshot.value as Map);
