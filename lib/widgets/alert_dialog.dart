@@ -9,7 +9,7 @@ class SensorAlertDialog extends StatelessWidget {
 
   List<Map<String, dynamic>> _getAbnormalSensors() {
     final List<Map<String, dynamic>> abnormalSensors = [];
-    final formatter = DateFormat('HH:mm:ss');
+    final formatter = DateFormat('HH:mm:ss dd-MM-yyyy');
     final timestamp = formatter.format(data.timestamp);
 
     if (data.ph < 5.5 || data.ph > 7.5) {
@@ -50,7 +50,7 @@ class SensorAlertDialog extends StatelessWidget {
     }
     if (data.angin >= 5) {
       abnormalSensors.add({
-        'name': 'Kecepatan Angin',
+        'name': 'Angin',
         'value': data.angin.toStringAsFixed(1),
         'unit': 'm/s',
         'message': 'Angin kencang',
