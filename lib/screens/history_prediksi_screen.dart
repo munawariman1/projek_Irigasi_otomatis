@@ -113,10 +113,11 @@ class HistoryPrediksiScreen extends StatelessWidget {
                             ],
                             const SizedBox(height: 4),
                             Text(
-                              "Processing time: ${item['processing_time']?.toString() ?? '-'} detik",
+                              "Durasi Penyiraman: ${item['durasi_penyiraman']?.toString() ?? '-'} detik",
                               style: const TextStyle(
                                 fontSize: 12,
-                                color: Colors.grey,
+                                color: Color.fromARGB(255, 0, 0, 0),
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ],

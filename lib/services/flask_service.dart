@@ -1,41 +1,28 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import '../models/sensor_data.dart';
-import '../models/prediction_result.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:projek_irigasi_otomatis/models/prediction_result.dart';
+import 'package:flutter/material.dart';
 
-class FlaskService {
-  static const String baseUrl =
-      'https://41ce-180-241-46-158.ngrok-free.app'; // Ganti dengan URL Flask server
-
-  Future<PredictionResult> predict(SensorData data) async {
-    try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/predict'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'data': [
-            data.kelembapan, // kelembapan_tanah
-            data.suhu, // suhu_tanah
-            data.ph, // ph_tanah
-            data.curahHujan, // curah_hujan
-            data.angin, // kecepatan_angin
-            data.levelAir, // level_air
-          ],
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        final result = json.decode(response.body);
-        return PredictionResult(
-          efisiensi: result['efisiensi'],
-          durasiIrigasi: result['durasi_irigasi'],
-          timestamp: DateTime.parse(result['timestamp'].replaceAll(' ', 'T')),
-        );
-      } else {
-        throw Exception('Gagal mendapatkan prediksi: ${response.statusCode}');
-      }
-    } catch (e) {
-      throw Exception('Error saat melakukan prediksi: $e');
-    }
+class PrediksiStreamWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<DatabaseEvent>(
+      stream: FirebaseDatabase.instance.ref('historyPrediksi').limitToLast(1).onValue,
+      builder: (context, snapshot) {
+        if (snapshot.hasData && snapshot.data!.snapshot.value != null) {
+          final data = (snapshot.data!.snapshot.value as Map).values.first as Map;
+          final hasil = PredictionResult.fromJson(Map<String, dynamic>.from(data));
+          return Column(
+            children: [
+              Text('Prediksi: ${hasil.prediction}'),
+              Text('Probabilitas: ${hasil.probabilitas}'),
+              Text('Durasi Penyiraman: ${hasil.durasiPenyiraman} detik'),
+              Text('Waktu: ${hasil.timestamp}'),
+            ],
+          );
+        } else {
+          return CircularProgressIndicator();
+        }
+      },
+    );
   }
 }

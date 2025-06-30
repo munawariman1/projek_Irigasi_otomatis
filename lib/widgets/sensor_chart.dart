@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 class SensorChart extends StatelessWidget {
   final String sensorName;
   final List<double> values;
+  final List<DateTime> timestamps;
 
   const SensorChart({
     super.key,
     required this.sensorName,
     required this.values,
+    required this.timestamps,
   });
 
   // Mendapatkan warna berdasarkan jenis sensor
@@ -29,14 +31,10 @@ class SensorChart extends StatelessWidget {
       default:
         return Colors.grey;
     }
-  }
+  } // Format jam untuk label bawah
 
-  // Format jam untuk label bawah (misalnya: "14:30")
-  String _getTimeLabel(int index, int totalPoints) {
-    // Asumsi data dari kanan ke kiri (terbaru di kanan)
-    final now = DateTime.now();
-    final timePoint = now.subtract(Duration(hours: totalPoints - 1 - index));
-    return "${timePoint.hour.toString().padLeft(2, '0')}:${timePoint.minute.toString().padLeft(2, '0')}";
+  String _formatTimestamp(DateTime time) {
+    return "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}";
   }
 
   @override
@@ -67,7 +65,10 @@ class SensorChart extends StatelessWidget {
                 ),
                 if (values.isNotEmpty)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: sensorColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
@@ -109,21 +110,32 @@ class SensorChart extends StatelessWidget {
                     },
                   ),
                   titlesData: FlTitlesData(
-                    rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    rightTitles: AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    topTitles: AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                     bottomTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
-                        interval: 4,
+                        reservedSize: 30,
+                        interval: 1, // Show every data point
                         getTitlesWidget: (value, meta) {
-                          if (value % 4 != 0) return const Text('');
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: Text(
-                              _getTimeLabel(value.toInt(), values.length),
-                              style: TextStyle(
-                                color: Colors.grey.shade600,
-                                fontSize: 10,
+                          final index = value.toInt();
+                          if (index < 0 || index >= timestamps.length) {
+                            return const Text('');
+                          }
+                          return Transform.rotate(
+                            angle: -0.5,
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: Text(
+                                _formatTimestamp(timestamps[index]),
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w400,
+                                ),
                               ),
                             ),
                           );
@@ -154,9 +166,10 @@ class SensorChart extends StatelessWidget {
                   ),
                   lineBarsData: [
                     LineChartBarData(
-                      spots: values.asMap().entries.map(
-                        (e) => FlSpot(e.key.toDouble(), e.value),
-                      ).toList(),
+                      spots:
+                          values.asMap().entries.map((e) {
+                            return FlSpot(e.key.toDouble(), e.value);
+                          }).toList(),
                       isCurved: true,
                       color: sensorColor,
                       barWidth: 3,

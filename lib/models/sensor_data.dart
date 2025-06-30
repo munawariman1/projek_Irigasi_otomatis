@@ -6,12 +6,6 @@ class SensorData {
   final double levelAir;
   final double angin;
   final DateTime timestamp;
-  final List<double> phHistory;
-  final List<double> kelembapanHistory;
-  final List<double> suhuHistory;
-  final List<double> curahHujanHistory;
-  final List<double> levelAirHistory;
-  final List<double> anginHistory;
 
   SensorData({
     required this.ph,
@@ -21,20 +15,7 @@ class SensorData {
     required this.levelAir,
     required this.angin,
     DateTime? timestamp,
-    List<double>? phHistory,
-    List<double>? kelembapanHistory,
-    List<double>? suhuHistory,
-    List<double>? curahHujanHistory,
-    List<double>? levelAirHistory,
-    List<double>? anginHistory,
-  }) : this.timestamp = timestamp ?? DateTime.now(),
-       this.phHistory = phHistory ?? [],
-       this.kelembapanHistory = kelembapanHistory ?? [],
-       this.suhuHistory = suhuHistory ?? [],
-       this.curahHujanHistory = curahHujanHistory ?? [],
-       this.levelAirHistory = levelAirHistory ?? [],
-       this.anginHistory = anginHistory ?? [];
-
+  }) : this.timestamp = timestamp ?? DateTime.now();
   Map<String, dynamic> toJson() {
     return {
       "phTanah": ph,
@@ -44,30 +25,10 @@ class SensorData {
       "levelAir": levelAir,
       "kecepatanAngin": angin,
       "timestamp": timestamp.toIso8601String(),
-      "phTanahHistory": phHistory,
-      "kelembapanTanahHistory": kelembapanHistory,
-      "suhuTanahHistory": suhuHistory,
-      "curahHujanHistory": curahHujanHistory,
-      "levelAirHistory": levelAirHistory,
-      "kecepatanAnginHistory": anginHistory,
     };
   }
 
   factory SensorData.fromJson(Map<String, dynamic> json) {
-    List<double> safeList(dynamic rawList) {
-      if (rawList is List) {
-        try {
-          return rawList
-              .map((e) => (e == null) ? 0.0 : (e as num).toDouble())
-              .toList();
-        } catch (e) {
-          print('Warning: Error converting list: $e');
-          return [];
-        }
-      }
-      return [];
-    }
-
     double safeDouble(dynamic value) {
       if (value == null) return 0.0;
       if (value is num) return value.toDouble();
@@ -95,18 +56,6 @@ class SensorData {
           json.containsKey('timestamp')
               ? DateTime.parse(json['timestamp'] as String)
               : DateTime.now(),
-      phHistory: safeList(json['phTanahHistory'] ?? json['phHistory'] ?? []),
-      kelembapanHistory: safeList(
-        json['kelembapanTanahHistory'] ?? json['kelembapanHistory'] ?? [],
-      ),
-      suhuHistory: safeList(
-        json['suhuTanahHistory'] ?? json['suhuHistory'] ?? [],
-      ),
-      curahHujanHistory: safeList(json['curahHujanHistory'] ?? []),
-      levelAirHistory: safeList(json['levelAirHistory'] ?? []),
-      anginHistory: safeList(
-        json['kecepatanAnginHistory'] ?? json['anginHistory'] ?? [],
-      ),
     );
   }
 }

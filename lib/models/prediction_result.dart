@@ -1,28 +1,25 @@
 class PredictionResult {
-  final String efisiensi;
-  final int durasiIrigasi;
-  final DateTime timestamp;
+  final String prediction;
+  final double? probabilitas;
+  final int? durasiPenyiraman;
+  final String? timestamp;
+  final double? processingTime;
 
   PredictionResult({
-    required this.efisiensi,
-    required this.durasiIrigasi,
-    DateTime? timestamp,
-  }) : timestamp = timestamp ?? DateTime.now();
-
-  Map<String, dynamic> toJson() => {
-    'efisiensi': efisiensi,
-    'durasi_irigasi': durasiIrigasi,
-    'timestamp': timestamp.toIso8601String(),
-  };
+    required this.prediction,
+    this.probabilitas,
+    this.durasiPenyiraman,
+    this.timestamp,
+    this.processingTime,
+  });
 
   factory PredictionResult.fromJson(Map<String, dynamic> json) {
     return PredictionResult(
-      efisiensi: json['efisiensi']?.toString() ?? 'Unknown',
-      durasiIrigasi: (json['durasi_irigasi'] as num?)?.toInt() ?? 0,
-      timestamp:
-          json.containsKey('timestamp')
-              ? DateTime.parse(json['timestamp'] as String)
-              : DateTime.now(),
+      prediction: json['prediction'],
+      probabilitas: (json['probabilitas'] as num?)?.toDouble(),
+      durasiPenyiraman: json['durasi_penyiraman'] as int?,
+      timestamp: json['timestamp'] as String?,
+      processingTime: (json['processing_time'] as num?)?.toDouble(),
     );
   }
 }

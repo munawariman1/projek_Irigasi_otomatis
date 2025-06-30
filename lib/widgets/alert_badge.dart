@@ -9,20 +9,22 @@ class AlertBadge extends StatelessWidget {
 
   List<String> _getAbnormalSensors() {
     final List<String> abnormalSensors = [];
-
-    if (data.ph < 5.5 || data.ph > 7.5) {
+    if (data.ph < 6.0 || data.ph > 7.0) {
       abnormalSensors.add('pH Tanah');
     }
-    if (data.kelembapan < 30) {
+    if (data.kelembapan < 60 || data.kelembapan > 80) {
       abnormalSensors.add('Kelembapan');
     }
-    if (data.suhu < 20 || data.suhu > 32) {
+    if (data.suhu < 25 || data.suhu > 35) {
       abnormalSensors.add('Suhu');
+    }
+    if (data.curahHujan > 50) {
+      abnormalSensors.add('Curah Hujan');
     }
     if (data.levelAir < 10) {
       abnormalSensors.add('Level Air');
     }
-    if (data.angin >= 5) {
+    if (data.angin > 30) {
       abnormalSensors.add('Kecepatan Angin');
     }
 
@@ -32,17 +34,18 @@ class AlertBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final abnormalSensors = _getAbnormalSensors();
-
-    if (abnormalSensors.isEmpty) {
-      return const SizedBox.shrink();
-    }
+    final badgeColor = abnormalSensors.isNotEmpty
+        ? Colors.red
+        : Colors.grey; // Merah jika ada abnormal, abu-abu jika tidak
 
     return Stack(
       children: [
         IconButton(
-          icon: const Icon(Icons.notifications_active),
+          icon: const Icon(Icons.notifications, color: Colors.black),
           onPressed: onTap,
-          tooltip: '${abnormalSensors.length} sensor tidak normal',
+          tooltip: abnormalSensors.isNotEmpty
+              ? '${abnormalSensors.length} sensor tidak normal'
+              : 'Semua sensor normal',
         ),
         Positioned(
           right: 8,
@@ -50,7 +53,7 @@ class AlertBadge extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(2),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.error,
+              color: badgeColor,
               borderRadius: BorderRadius.circular(10),
             ),
             constraints: const BoxConstraints(minWidth: 16, minHeight: 16),

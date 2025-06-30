@@ -11,31 +11,39 @@ class SensorAlertDialog extends StatelessWidget {
     final List<Map<String, dynamic>> abnormalSensors = [];
     final formatter = DateFormat('HH:mm:ss dd-MM-yyyy');
     final timestamp = formatter.format(data.timestamp);
-
-    if (data.ph < 5.5 || data.ph > 7.5) {
+    if (data.ph < 6.0 || data.ph > 7.0) {
       abnormalSensors.add({
         'name': 'pH Tanah',
         'value': data.ph.toStringAsFixed(1),
         'unit': '',
-        'message': data.ph < 5.5 ? 'Terlalu asam' : 'Terlalu basa',
+        'message': data.ph < 6.0 ? 'Terlalu asam' : 'Terlalu basa',
         'time': timestamp,
       });
     }
-    if (data.kelembapan < 30) {
+    if (data.kelembapan < 60 || data.kelembapan > 80) {
       abnormalSensors.add({
         'name': 'Kelembapan',
         'value': data.kelembapan.toStringAsFixed(1),
         'unit': '%',
-        'message': 'Terlalu kering',
+        'message': data.kelembapan < 60 ? 'Terlalu kering' : 'Terlalu lembab',
         'time': timestamp,
       });
     }
-    if (data.suhu < 20 || data.suhu > 32) {
+    if (data.suhu < 25 || data.suhu > 35) {
       abnormalSensors.add({
         'name': 'Suhu',
         'value': data.suhu.toStringAsFixed(1),
         'unit': '°C',
-        'message': data.suhu < 20 ? 'Terlalu dingin' : 'Terlalu panas',
+        'message': data.suhu < 25 ? 'Terlalu dingin' : 'Terlalu panas',
+        'time': timestamp,
+      });
+    }
+    if (data.curahHujan > 50) {
+      abnormalSensors.add({
+        'name': 'Curah Hujan',
+        'value': data.curahHujan.toStringAsFixed(1),
+        'unit': 'mm',
+        'message': 'Curah hujan tinggi',
         'time': timestamp,
       });
     }
@@ -48,12 +56,12 @@ class SensorAlertDialog extends StatelessWidget {
         'time': timestamp,
       });
     }
-    if (data.angin >= 5) {
+    if (data.angin > 30) {
       abnormalSensors.add({
         'name': 'Angin',
         'value': data.angin.toStringAsFixed(1),
         'unit': 'm/s',
-        'message': 'Angin kencang',
+        'message': 'Kecepatan angin tinggi',
         'time': timestamp,
       });
     }
