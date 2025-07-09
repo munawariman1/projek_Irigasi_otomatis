@@ -16,9 +16,12 @@ class _ManualControlPageState extends State<ManualControlPage> {
   int _remainingSeconds = 0;
   Timer? _timer;
 
+  double _selectedDuration = 30;
+
   @override
   void initState() {
     super.initState();
+
     _pompaRef.child('mode').onValue.listen((event) {
       final mode = event.snapshot.value as String?;
       setState(() {
@@ -38,45 +41,7 @@ class _ManualControlPageState extends State<ManualControlPage> {
     _pompaRef.child('mode').set('manual');
   }
 
-  Future<void> _showDurationDialog() async {
-    final controller = TextEditingController();
-    int? seconds;
-    await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Masukkan Durasi Penyiraman (detik)'),
-        content: TextField(
-          controller: controller,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            hintText: 'Contoh: 60',
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Batal'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (controller.text.isNotEmpty) {
-                seconds = int.tryParse(controller.text);
-                Navigator.pop(context);
-              }
-            },
-            child: Text('Mulai'),
-          ),
-        ],
-      ),
-    );
-
-    if (seconds != null && seconds! > 0) {
-      _startManualPump(seconds!);
-    }
-  }
-
   void _startManualPump(int seconds) {
-    // Set mode manual dan status pompa ON beserta log waktu dan durasi
     final startTime = DateTime.now().toIso8601String();
 
     _setManualMode();
@@ -86,7 +51,6 @@ class _ManualControlPageState extends State<ManualControlPage> {
       'duration': seconds,
     });
 
-    // Simpan ke manualLog
     _manualLogRef.push().set({
       'waktu': startTime,
       'durasi': seconds,
@@ -117,6 +81,49 @@ class _ManualControlPageState extends State<ManualControlPage> {
     _timer?.cancel();
   }
 
+  void _showDurationSlider() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Atur Durasi Penyiraman"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Slider(
+              min: 10,
+              max: 300,
+              divisions: 29,
+              value: _selectedDuration,
+              label: "${_selectedDuration.toInt()} detik",
+              onChanged: (val) {
+                setState(() {
+                  _selectedDuration = val;
+                });
+              },
+            ),
+            Text(
+              "Durasi: ${_selectedDuration.toInt()} detik",
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            )
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Batal"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _startManualPump(_selectedDuration.toInt());
+            },
+            child: const Text("Nyalakan"),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _timer?.cancel();
@@ -127,58 +134,62 @@ class _ManualControlPageState extends State<ManualControlPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Kontrol Manual Pompa"),
+        title: const Text("Kontrol Manual Pompa"),
         actions: [
           IconButton(
-            icon: Icon(Icons.list),
+            icon: const Icon(Icons.history),
             onPressed: () {
               Navigator.pushNamed(context, '/manualLog');
             },
-            tooltip: 'Lihat Log Manual',
+            tooltip: "Log Manual",
           ),
         ],
       ),
-      body: Center(
+      body: Padding(
+        padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SwitchListTile(
-              title: Text("Mode Manual (Override)"),
+              title: const Text("Mode Manual Aktif"),
               value: _isManualMode,
               onChanged: (val) {
                 if (val) _setManualMode();
-                // Jika ingin mengembalikan ke otomatis, bisa tambahkan aksi di sini.
               },
+              activeColor: Colors.green,
             ),
-            SizedBox(height: 32),
+            const SizedBox(height: 24),
             Icon(
-              _isPumpOn ? Icons.water : Icons.water_outlined,
-              size: 80,
+              _isPumpOn ? Icons.water_drop : Icons.water_drop_outlined,
               color: _isPumpOn ? Colors.blue : Colors.grey,
+              size: 80,
             ),
-            SizedBox(height: 16),
-            if (_isPumpOn)
-              Text(
-                "Penyiraman Berjalan\nSisa waktu: $_remainingSeconds detik",
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _isPumpOn ? null : _showDurationDialog,
-              child: Text("Nyalakan Pompa (Manual)"),
+            const SizedBox(height: 12),
+            Text(
+              _isPumpOn
+                  ? "Pompa Menyala\nSisa Waktu: $_remainingSeconds detik"
+                  : "Pompa Tidak Aktif",
+              style: const TextStyle(fontSize: 16),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton.icon(
+              onPressed: _isPumpOn ? null : _showDurationSlider,
+              icon: const Icon(Icons.play_arrow),
+              label: const Text("Nyalakan Pompa"),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
-                padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
               ),
             ),
-            SizedBox(height: 12),
-            ElevatedButton(
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
               onPressed: _isPumpOn ? _stopManualPump : null,
-              child: Text("Matikan Pompa"),
+              icon: const Icon(Icons.stop),
+              label: const Text("Matikan Pompa"),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
-                padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
               ),
             ),
           ],

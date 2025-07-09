@@ -26,27 +26,18 @@ class FirebaseService {
       ).ref();
 
   Stream<SensorData?> getSensorDataStream() {
-    print('🔎 Listening to path: /sensors');
-    return _sensorRef.child('sensors').onValue.map((event) {
-      print('📦 Raw Firebase data: ${event.snapshot.value}');
+  final ref = FirebaseDatabase.instance.ref('sensors').limitToLast(1);
+  return ref.onValue.map((event) {
+    if (event.snapshot.exists) {
+      final dataMap = Map<String, dynamic>.from(event.snapshot.value as Map);
+      final lastEntry = dataMap.values.first;
+      return SensorData.fromJson(Map<String, dynamic>.from(lastEntry));
+    }
+    return null;
+  });
+}
 
-      if (event.snapshot.value is! Map) {
-        print(
-          '⚠️ Data format bukan Map, tapi ${event.snapshot.value.runtimeType}',
-        );
-        return null;
-      }
 
-      try {
-        final data = Map<String, dynamic>.from(event.snapshot.value as Map);
-        print('✅ Data parsed successfully');
-        return SensorData.fromJson(data);
-      } catch (e) {
-        print('❌ Error parsing data: $e');
-        return null;
-      }
-    });
-  }
 
   Future<void> simpanHistorySensor(SensorData data) async {
     await FirebaseDatabase.instance
@@ -55,19 +46,7 @@ class FirebaseService {
         .set(data.toJson());
   }
 
-  Future<void> simpanHistoryPrediksi(
-    SensorData data,
-    String efisiensi,
-    int durasi,
-  ) async {
-    final now = DateTime.now().toIso8601String();
-    await FirebaseDatabase.instance.ref('history_prediksi').push().set({
-      ...data.toJson(),
-      "efisiensi": efisiensi,
-      "irigasiWaktu": durasi,
-      "waktu": now,
-    });
-  }
+  
 
   Future<void> togglePump(bool status) async {
     try {

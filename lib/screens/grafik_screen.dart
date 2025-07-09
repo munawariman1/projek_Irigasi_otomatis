@@ -8,7 +8,7 @@ class GrafikScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final historyRef = FirebaseDatabase.instance.ref('historySensor')
+    final historyRef = FirebaseDatabase.instance.ref('sensors')
         .limitToLast(12); // Limit to last 24 entries
 
     return Scaffold(
@@ -47,7 +47,7 @@ class GrafikScreen extends StatelessWidget {
           }
           try {
             final dynamic rawData = snapshot.data!.snapshot.value;
-            List<HistorySensor> historyList = [];
+            List<SensorLog> historyList = [];
 
             if (rawData != null && rawData is Map) {
               final Map<String, dynamic> dataMap = Map<String, dynamic>.from(
@@ -62,7 +62,7 @@ class GrafikScreen extends StatelessWidget {
                       value['timestamp'] = DateTime.now().toIso8601String();
                     }
                     historyList.add(
-                      HistorySensor.fromJson(Map<String, dynamic>.from(value)),
+                      SensorLog.fromJson(Map<String, dynamic>.from(value)),
                     );
                   } catch (e) {
                     print('Grafik - Error processing entry $key: $e');

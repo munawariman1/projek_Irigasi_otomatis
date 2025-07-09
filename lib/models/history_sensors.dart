@@ -1,4 +1,4 @@
-class HistorySensor {
+class SensorLog {
   final double ph;
   final double kelembapan;
   final double suhu;
@@ -7,7 +7,7 @@ class HistorySensor {
   final double angin;
   final DateTime timestamp;
 
-  HistorySensor({
+  SensorLog({
     required this.ph,
     required this.kelembapan,
     required this.suhu,
@@ -16,7 +16,7 @@ class HistorySensor {
     required this.angin,
     required this.timestamp,
   });
-  factory HistorySensor.fromJson(Map<String, dynamic> json) {
+  factory SensorLog.fromJson(Map<String, dynamic> json) {
     double safeDouble(dynamic value) {
       if (value == null) return 0.0;
       if (value is num) return value.toDouble();
@@ -39,7 +39,7 @@ class HistorySensor {
       data = json['sensor'] as Map<String, dynamic>;
     }
 
-    return HistorySensor(
+    return SensorLog(
       ph: safeDouble(data['ph'] ?? data['phTanah'] ?? data['ph_tanah']),
       kelembapan: safeDouble(
         data['kelembapan'] ??

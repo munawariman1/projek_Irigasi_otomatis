@@ -13,7 +13,20 @@
           "package_name": "com.example.projek_irigasi_otomatis"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "843320739571-gmn6ohe2b9ji66vl92eqj9fr48229acp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.projek_irigasi_otomatis",
+            "certificate_hash": "66309b5eb62e343687c2bcd9b4c936b53ddce3b8"
+          }
+        },
+        {
+          "client_id": "843320739571-b88p7fnfnq7vr9e7ifqnm85krljjp3me.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDY24i_PimPnhXeIelWuYpn5keGhqwWj_E"
@@ -21,7 +34,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "843320739571-b88p7fnfnq7vr9e7ifqnm85krljjp3me.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
